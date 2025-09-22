@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
-	"espinabrian.com/ecommerce/handlers"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+
+	"espinabrian.com/ecommerce/auth"
+	"espinabrian.com/ecommerce/handlers"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -46,6 +48,10 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Route("/api", func(r chi.Router) {
+		r.Route("/auth", func(r chi.Router) {
+			auth.AuthHandler(r, pool)
+		})
+
 		r.Route("/products", func(r chi.Router) {
 			handlers.ProductsHandler(r, pool)
 		})
