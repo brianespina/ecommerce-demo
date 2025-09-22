@@ -4,6 +4,7 @@ frontend/.svelte-kit/
 frontend/build/
 
 # Go
+backend/tmp
 backend/bin/
 backend/*.exe
 
