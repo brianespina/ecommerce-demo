@@ -48,6 +48,7 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Route("/api", func(r chi.Router) {
+
 		r.Route("/auth", func(r chi.Router) {
 			auth.AuthHandler(r, pool)
 		})
