@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -26,6 +27,13 @@ type User struct {
 	Email    string
 	Password string
 	Date     time.Time
+}
+type Session struct {
+	ID     int
+	UserID int
+	Token  string
+	Date   time.Time
+	Expiry time.Time
 }
 
 func AuthHandler(r chi.Router, pool *pgxpool.Pool) {
@@ -72,8 +80,7 @@ func AuthHandler(r chi.Router, pool *pgxpool.Pool) {
 
 		var u User
 		row := pool.QueryRow(r.Context(), "SELECT * FROM users WHERE email = $1", form.Email)
-		err := row.Scan(&u.ID, &u.Email, &u.Password, &u.Date)
-		if err != nil {
+		if err := row.Scan(&u.ID, &u.Email, &u.Password, &u.Date); err != nil {
 			http.Error(w, "User not found", http.StatusInternalServerError)
 			return
 		}
@@ -81,12 +88,27 @@ func AuthHandler(r chi.Router, pool *pgxpool.Pool) {
 			http.Error(w, "Password Incorrect", http.StatusInternalServerError)
 			return
 		}
-		//Loggin
-		//Create Session
-		//Generate token
-		//ADD EXPIRE DATE
-		//INSERT TO DB
+		//Login
+		token := uuid.NewString()
+		years := 0
+		months := 0
+		days := 7
+		expiresAt := time.Now().AddDate(years, months, days)
+
+		if _, err := pool.Exec(r.Context(), "INSERT INTO sessions (user_id, session_token, expires_at) VALUES ($1, $2, $3)", u.ID, token, expiresAt); err != nil {
+			http.Error(w, "Error inserting session", http.StatusInternalServerError)
+			return
+		}
 		//Send token to cookies
+		cookie := http.Cookie{
+			Name:    "session_token",
+			Value:   token,
+			Expires: expiresAt,
+			Path:    "/",
+		}
+		http.SetCookie(w, &cookie)
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Login successful\n"))
 	})
 
 }
