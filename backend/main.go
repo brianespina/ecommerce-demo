@@ -37,7 +37,7 @@ func main() {
 	pool, err := pgxpool.New(context.Background(), dbConfig)
 
 	if err != nil {
-		log.Fatalf("Faild to create connection pool: %v\n", err)
+		log.Fatalf("Failed to create connection pool: %v\n", err)
 	}
 	defer pool.Close()
 
@@ -56,10 +56,22 @@ func main() {
 		r.Route("/products", func(r chi.Router) {
 			handlers.ProductsHandler(r, pool)
 		})
+
 		r.Route("/categories", func(r chi.Router) {
 			handlers.CategoriesHandler(r, pool)
 		})
 	})
 
 	http.ListenAndServe(":8080", r)
+}
+
+func AuthMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, err := r.Cookie("session_token")
+		if err != nil {
+			http.Error(w, "Login required", http.StatusUnauthorized)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }
