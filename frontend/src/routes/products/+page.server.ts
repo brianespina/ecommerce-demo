@@ -1,14 +1,14 @@
-import type {PageServerLoad} from './$types';
+import type { PageServerLoad } from './$types';
 
+export const load: PageServerLoad = async () => {
+	const res = await fetch('http://localhost:8080/api/products');
 
-export const load: PageServerLoad = async ({params}) => {
-	const res = await fetch("http://localhost:8080/api/products")
-	if (!res.ok){
-		throw new Error('failed to fetch products')
+	if (!res.ok) {
+		throw new Error('failed to fetch products');
 	}
-	const products = await res.json()
+	const products = await res.json();
 
-	return{
+	return {
 		products
-	}
-}
+	};
+};

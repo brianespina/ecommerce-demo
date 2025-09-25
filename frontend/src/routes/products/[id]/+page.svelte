@@ -3,10 +3,4 @@
 	let { data }: PageProps = $props();
 </script>
 
-<h1>Products</h1>
-
-{#each data.products as product (product.id)}
-	<p>
-		{product.name}
-	</p>
-{/each}
+<h1>{JSON.stringify(data.product)}</h1>
