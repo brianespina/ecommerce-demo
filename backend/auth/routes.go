@@ -101,10 +101,11 @@ func AuthHandler(r chi.Router, pool *pgxpool.Pool) {
 		}
 		//Send token to cookies
 		cookie := http.Cookie{
-			Name:    "session_token",
-			Value:   token,
-			Expires: expiresAt,
-			Path:    "/",
+			Name:     "session_token",
+			Value:    token,
+			Expires:  expiresAt,
+			Path:     "/",
+			HttpOnly: true,
 		}
 		http.SetCookie(w, &cookie)
 		w.WriteHeader(http.StatusOK)

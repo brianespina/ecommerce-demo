@@ -7,6 +7,6 @@
 
 {#each data.products as product (product.id)}
 	<p>
-		{product.name}
+		<a href={`/products/${product.id}`}> {product.name}</a>
 	</p>
 {/each}
